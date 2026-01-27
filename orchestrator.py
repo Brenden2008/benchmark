@@ -37,20 +37,7 @@ def dispatch_batch(model: str, start: int, end: int, tracking_id: str) -> bool:
     """Dispatch a workflow run. Returns True if successful."""
     url = f"{API_BASE}/actions/workflows/{WORKFLOW_FILE}/dispatches"
     data = {"ref": "main", "inputs": {"model": model, "start": str(start), "end": str(end), "parallel": "3", "tracking_id": tracking_id}}
-    
-    # DEBUG: Print request details
-    print(f"DEBUG dispatch_batch:")
-    print(f"  URL: {url}")
-    print(f"  Data: {json.dumps(data, indent=2)}")
-    print(f"  Token present: {bool(GITHUB_TOKEN)}")
-    print(f"  Token prefix: {GITHUB_TOKEN[:10] if GITHUB_TOKEN else 'None'}...")
-    
     resp = requests.post(url, headers=HEADERS, json=data)
-    
-    # DEBUG: Print response details
-    print(f"  Status: {resp.status_code}")
-    print(f"  Response: {resp.text[:500] if resp.text else '(empty)'}")
-    
     return resp.status_code == 204
 
 
