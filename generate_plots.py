@@ -158,7 +158,7 @@ def plot_accuracy_by_model(results: dict[str, list[dict]], theme: Theme):
     ax.set_xticks(x)
     ax.set_xticklabels([d["model"] for d in data], rotation=45, ha="right", fontsize=9)
     ax.set_ylabel("Score (%)", fontsize=10)
-    ax.set_ylim(0, 100)
+    ax.set_ylim(20, 80)
     
     apply_theme(ax, theme)
     fig.tight_layout()
@@ -212,7 +212,7 @@ def plot_accuracy_vs_throughput(results: dict[str, list[dict]], theme: Theme):
     
     ax.set_xlabel("Tasks per Hour", fontsize=10)
     ax.set_ylabel("Score (%)", fontsize=10)
-    ax.set_ylim(0, 100)
+    ax.set_ylim(20, 80)
     
     add_legend(ax, legend_items, theme)
     apply_theme(ax, theme)
