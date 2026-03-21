@@ -25,25 +25,16 @@
 </div>
 
 <h1 align="center">Open-Source Benchmarks</h1>
-</br>
 
-### **BU_Bench_V1**: 100 hand-selected tasks for evaluating browser automation agents
-
-<picture>
-  <source media="(prefers-color-scheme: light)" srcset="official_plots/accuracy_by_model_light.png">
-  <source media="(prefers-color-scheme: dark)" srcset="official_plots/accuracy_by_model_dark.png">
-  <img alt="Accuracy by Model" src="official_plots/accuracy_by_model_light.png" width="100%">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: light)" srcset="official_plots/accuracy_vs_throughput_light.png">
-  <source media="(prefers-color-scheme: dark)" srcset="official_plots/accuracy_vs_throughput_dark.png">
-  <img alt="Accuracy vs Latency" src="official_plots/accuracy_vs_throughput_light.png" width="100%">
-</picture>
+<br/>
 
 ---
 
-### **Stealth_Bench_V1**: 80 tasks for evaluating browser stealth across anti-bot protections
+<br/>
+
+## Stealth Bench V1
+
+**71 tasks for evaluating browser stealth across anti-bot protections**
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="stealth_bench/official_plots/accuracy_by_browser_light.png">
@@ -57,9 +48,9 @@
   <img alt="Stealth Bench - Category Heatmap" src="stealth_bench/official_plots/category_heatmap_light.png" width="100%">
 </picture>
 
----
+Read more in our [blog post](https://browser-use.com/posts/stealth-benchmark).
 
-## Quick Start
+### Running the Stealth Benchmark
 
 **1. Install dependencies**
 ```bash
@@ -67,11 +58,69 @@ pip install uv
 uv sync
 ```
 
-**2. Add API keys to `.env`**
+**2. Set up your `.env`** (see [`.env.example`](.env.example))
 ```bash
-BROWSER_USE_API_KEY=your-key      # Required for ChatBrowserUse and cloud browsers
-GOOGLE_API_KEY=your-key           # Required for judge LLM (gemini-2.5-flash)
-# Add other provider keys as needed (OPENAI_API_KEY, ANTHROPIC_API_KEY)
+cp .env.example .env
+# Fill in GOOGLE_API_KEY (required for the judge LLM)
+# Fill in the API key for the browser provider you want to test
+```
+
+**3. Decrypt the task set**
+```bash
+python -c "
+import base64, hashlib, json
+from cryptography.fernet import Fernet
+key = base64.urlsafe_b64encode(hashlib.sha256(b'Stealth_Bench_V1').digest())
+tasks = json.loads(Fernet(key).decrypt(base64.b64decode(open('Stealth_Bench_V1.enc').read())))
+print(f'Loaded {len(tasks)} tasks')
+json.dump(tasks, open('Stealth_Bench_V1.json', 'w'), indent=2)
+"
+```
+
+**4. Run the evaluation**
+```bash
+uv run python run_eval.py --browser <provider>
+```
+
+Available providers: `browser-use-cloud`, `anchor`, `browserbase`, `browserless`, `hyperbrowser`, `onkernel`, `steel`, `local_headful`, `local_headless`
+
+**Results and official data:** [`stealth_bench/`](stealth_bench/)
+
+<br/>
+
+---
+
+<br/>
+
+## BU Bench V1
+
+**100 hand-selected tasks for evaluating browser automation agents**
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="official_plots/accuracy_by_model_light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="official_plots/accuracy_by_model_dark.png">
+  <img alt="Accuracy by Model" src="official_plots/accuracy_by_model_light.png" width="100%">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="official_plots/accuracy_vs_throughput_light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="official_plots/accuracy_vs_throughput_dark.png">
+  <img alt="Accuracy vs Latency" src="official_plots/accuracy_vs_throughput_light.png" width="100%">
+</picture>
+
+### Running BU Bench
+
+**1. Install dependencies**
+```bash
+pip install uv
+uv sync
+```
+
+**2. Set up your `.env`** (see [`.env.example`](.env.example))
+```bash
+cp .env.example .env
+# Fill in BROWSER_USE_API_KEY (required for ChatBrowserUse and cloud browsers)
+# Fill in GOOGLE_API_KEY (required for judge LLM)
 ```
 
 **3. Run evaluation**
@@ -81,9 +130,7 @@ uv run python run_eval.py
 
 Results are saved to `results/` and detailed traces to `run_data/`.
 
----
-
-## Swapping Models
+### Swapping Models
 
 Edit `run_eval.py` to change the model:
 
@@ -101,9 +148,7 @@ agent = Agent(task=task["confirmed_task"], llm=ChatAnthropic(model="claude-sonne
 agent = Agent(task=task["confirmed_task"], llm=ChatGoogle(model="gemini-2.5-flash"), browser=browser)
 ```
 
----
-
-## About the Benchmark
+### About BU Bench
 
 100 tasks drawn from established benchmarks and custom challenges:
 
@@ -121,7 +166,7 @@ Tasks were hand-selected for difficulty and verified to be achievable. Each task
 
 Important: The task set is stored in base64 encoding to prevent data contamination in LLM training. Please do not publish the tasks in plaintext or use them in model training data.
 
-### Task Format
+#### Task Format
 
 | Field | Description |
 |-------|-------------|
@@ -130,7 +175,11 @@ Important: The task set is stored in base64 encoding to prevent data contaminati
 | `category` | Source benchmark |
 | `answer` | Ground truth (if applicable) |
 
+<br/>
+
 ---
+
+<br/>
 
 ## Attributions
 
@@ -174,7 +223,7 @@ MIT License | https://cdn.openai.com/pdf/5e10f4ab-d6f7-442e-9508-59515c65e35d/br
 No license (public validation split only) | https://huggingface.co/datasets/gaia-benchmark/GAIA
 ```bibtex
 @misc{mialon2023gaia,
-  title={GAIA: a benchmark for General AI Assistants}, 
+  title={GAIA: a benchmark for General AI Assistants},
   author={Gregoire Mialon and Clementine Fourrier and Craig Swift and Thomas Wolf and Yann LeCun and Thomas Scialom},
   year={2023},
   eprint={2311.12983},
